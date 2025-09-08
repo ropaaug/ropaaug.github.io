@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="ROPA: Synthetic Robot Pose Generation for RGB-D Bimanual Data Augmentation">
+  <meta name="keywords" content="ROPA, DataAugmentation, Bimanual, ImitationLearning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ROPA: Synthetic Robot Pose Generation for RGB-D Bimanual Data Augmentation</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script> -->
+  <!-- <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script> -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">ROPA: Synthetic Robot Pose Generation for RGB-D Bimanual Data Augmentation</h1>
+          <div class="is-size-5 publication-authors">
+            Anonymous Authors
+          </div>
+
+          <div class="column has-text-centered">              
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/figure_pull.png"
+                 class="interpolation-image"
+                 alt="Hero Figure"/>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">ROPA</span> performs offline data augmentation for bimanual imitation learning. 
+        White arrows indicate trajectory differences between original and augmented images. 
+        <span style="color:#FFBFC1; font-weight:600;">Pink regions</span> represent 
+        <span class="dnerf">ROPA</span> generated target images at timesteps \(t+k\) and \(t+2k\), 
+        while <span style="color:#3064BA; font-weight:600;">blue regions</span> show the original dataset.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Training robust bimanual manipulation policies via
+            imitation learning requires demonstration data with broad cov-
+            erage over robot poses, contacts, and scene contexts. However,
+            collecting diverse and precise real-world demonstrations is costly
+            and time-consuming, which hinders scalability. Prior works have
+            addressed this with data augmentation, typically for either eye-in-
+            hand (wrist camera) setups with RGB inputs or for generating
+            novel images without paired actions, leaving augmentation for
+            eye-to-hand (third-person) RGB-D training with new action
+            labels less explored. In this paper, we propose Synthetic Robot
+            Pose Generation for Data Augmentation (<span class="dnerf">ROPA</span>), an offline
+            imitation learning data augmentation method that fine-tunes
+            Stable Diffusion to synthesize third-person RGB and RGB-D
+            observations of novel robot poses from a single camera viewpoint.
+            Our approach simultaneously generates corresponding joint-
+            space action labels while employing constrained optimization
+            to enforce physical consistency through appropriate gripper-to-
+            object contact constraints in bimanual scenarios. We evaluate our
+            method on 5 simulated and 3 real-world tasks. Our results across
+            2250 simulation trials and 300 real-world trials demonstrate that
+            <span class="dnerf">ROPA</span> outperforms baselines and ablations, showing its potential
+            for scalable RGB and RGB-D data augmentation in eye-to-
+            hand bimanual manipulation.          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Method Overview -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Method Overview</h2>
+        <img src="./static/images/figure_method.png"
+                 class="interpolation-image"
+                 alt="Interpolate start reference image."/>
+        <div class="content has-text-justified">
+          <p>
+            <b>(1)</b> The Skeleton Pose Generator takes camera extrinsics and intrinsics, 
+            target joint positions, and left and right robot base positions to generate 
+            a skeleton pose image \(p_d\) representing the desired joint configuration. 
+          </p>
+          <p>
+            <b>(2)</b> The source image \(I_t^s\) and language goal \(g\) are fed into Stable Diffusion, 
+            while the generated skeleton pose serves as control input to ControlNet, producing 
+            the target image \(I_t^{d}\). The locked icons represent locked parameters. 
+          </p>
+          <p>
+            <b>(3)</b> The <span style="color:#FFBFC1; font-weight:600;">generated target images</span> 
+            at \(t+k\) and action labels are combined with the 
+            <span style="color:#3064BA; font-weight:600;">original dataset</span> at \(t\) and \(t+1\) 
+            to create an augmented training dataset for the bimanual manipulation policy.
+          </p>
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- Method Overview -->
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code></code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p> Website template modified from <a href="https://github.com/nerfies/nerfies.github.io">NeRFies</a>.</p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

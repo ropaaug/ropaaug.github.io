@@ -72,7 +72,7 @@
       <h2 class="subtitle has-text-centered">
         <span class="dnerf">ROPA</span> performs offline data augmentation for bimanual imitation learning. 
         White arrows indicate trajectory differences between original and augmented images. 
-        <span style="color:#FFBFC1; font-weight:600;">Pink regions</span> represent 
+        <span style="color:#FF2600; font-weight:600;">Red regions</span> represent 
         <span class="dnerf">ROPA</span> generated target images at timesteps \(t+k\) and \(t+2k\), 
         while <span style="color:#3064BA; font-weight:600;">blue regions</span> show the original dataset.
       </h2>
@@ -80,11 +80,57 @@
   </div>
 </section>
 
-
 <section class="hero is-light is-small">
   <div class="hero-body">
     <div class="container">
       <div id="results-carousel" class="carousel results-carousel">
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\real_CLB_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\real_CLD_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\real_CPB_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\BSR_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\CLB_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\CLT_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\CPB_Success.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="item">
+          <video poster autoplay muted loop playsinline height="100%">
+            <source src=".\static\videos\slider\CPID_Success.mp4" type="video/mp4">
+          </video>
+        </div>
       </div>
     </div>
   </div>
@@ -109,7 +155,7 @@
             novel images without paired actions, leaving augmentation for
             eye-to-hand (third-person) RGB-D training with new action
             labels less explored. In this paper, we propose Synthetic Robot
-            Pose Generation for Data Augmentation (<span class="dnerf">ROPA</span>), an offline
+            Pose Generation for Bimanual Data Augmentation (<span class="dnerf">ROPA</span>), an offline
             imitation learning data augmentation method that fine-tunes
             Stable Diffusion to synthesize third-person RGB and RGB-D
             observations of novel robot poses from a single camera viewpoint.
@@ -143,7 +189,7 @@
           <p>
             <b>(1)</b> The Skeleton Pose Generator takes camera extrinsics and intrinsics, 
             target joint positions, and left and right robot base positions to generate 
-            a skeleton pose image \(p_d\) representing the desired joint configuration. 
+            a skeleton pose image \(I_t^{p}\) representing the desired joint configuration. 
           </p>
           <p>
             <b>(2)</b> The source image \(I_t^s\) and language goal \(g\) are fed into Stable Diffusion, 
@@ -151,16 +197,445 @@
             the target image \(I_t^{d}\). The locked icons represent locked parameters. 
           </p>
           <p>
-            <b>(3)</b> The <span style="color:#FFBFC1; font-weight:600;">generated target images</span> 
-            at \(t+k\) and action labels are combined with the 
-            <span style="color:#3064BA; font-weight:600;">original dataset</span> at \(t\) and \(t+1\) 
-            to create an augmented training dataset for the bimanual manipulation policy.
+            <b>(3)</b> The original dataset is duplicated and <span style="color:#FF2600; font-weight:600;">generated target states</span>  replace the original states every \(k\) timesteps (at \(t+k\), \(t+2k\), etc.), with updated corresponding action labels. This augmented dataset is combined with the  <span style="color:#3064BA; font-weight:600;">original dataset</span> to train a bimanual manipulation policy.
           </p>
           </p>
         </div>
       </div>
     </div>
     <!-- Method Overview -->
+
+    <!-- Augmented States -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" style="text-align:start;">Original vs. Augmented States</h2>
+        <div class="content has-text-justified">
+          <p>
+            We present synthesized images from various bimanual tasks across two timesteps.
+          </p>
+        </div>
+        
+        <div class="box mt-0 mb-0">
+          <div class="columns is-centered">
+            <div class="column is-narrow">
+              <div class="field">
+                <label class="label">Choose a task to view the synthesized images:</label>
+                <div class="control">
+                  <div class="select">
+                    <select id="task-selector">
+                      <option value="real_lift_ball">(Real-World) Lift Ball</option>
+                      <option value="real_lift_drawer">(Real-World) Lift Drawer</option>
+                      <option value="real_push_block">(Real-World) Push Block</option>
+                      <option value="coordinated_lift_ball">(Simulation) Coordinated Lift Ball</option>
+                      <option value="coordinated_push_box">(Simulation) Coordinated Push Box</option>
+                      <option value="coordinated_put_item_in_drawer">(Simulation) Coordinated Put Item In Drawer</option>
+                      <option value="coordinated_lift_tray">(Simulation) Coordinated Lift Tray</option>
+                      <option value="bimanual_straighten_rope">(Simulation) Bimanual Straighten Rope</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="columns is-centered mt-4">
+            <div class="column">
+              <div id="image-container" class="has-text-centered">
+                <div id="real_lift_ball" class="task-image">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Real-World</p>
+                      <img src=".\static\images\augmented_states\real_CLB.png" alt="Real World - Lift Ball" class="has-shadow"  style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="real_lift_drawer" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Real-World</p>
+                      <img src=".\static\images\augmented_states\real_CLD.png" alt="Real World - Lift Drawer" class="has-shadow" style="transform:scale(0.95)"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="real_push_block" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Real-World</p>
+                      <img src=".\static\images\augmented_states\real_CPB.png" alt="Real World - Push Box" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="coordinated_lift_ball" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Simulation</p>
+                      <img src=".\static\images\augmented_states\sim_CLB.png" alt="Simulation - Lift Ball" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="coordinated_push_box" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Simulation</p>
+                      <img src=".\static\images\augmented_states\sim_CPB.png" alt="Simulation - Push Box" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="coordinated_put_item_in_drawer" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Simulation</p>
+                      <img src=".\static\images\augmented_states\sim_CPID.png" alt="Simulation - Put Item In Drawer" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="coordinated_lift_tray" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Simulation</p>
+                      <img src=".\static\images\augmented_states\sim_CLT.png" alt="Simulation - Lift Tray" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="bimanual_straighten_rope" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Simulation</p>
+                      <img src=".\static\images\augmented_states\sim_BSR.png" alt="Simulation - Bimanual Straighten Rope" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="coordinated_push_box" class="task-image" style="display: none;">
+                  <div class="columns">
+                    <div class="column">
+                      <p class="is-size-6 mb-2">Simulation</p>
+                      <img src=".\static\images\augmented_states\sim_CPB.png" alt="Simulation - Push Box" class="has-shadow" style="transform:scale(0.95)" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="columns is-centered mt-4">
+            <div class="column is-three-quarters">
+                  <p>
+                    The <span style="color:#3064BA; font-weight:600;">dark bordered images</span> show the original RGB and RGB-D images, 
+                    while the <span style="color:#FF2600; font-weight:600;">red bordered images</span> represent the generated target image 
+                    RGB and RGB-D images conditioned on the corresponding skeleton pose shown below.
+                  </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Augmented States -->
+
+    <!-- Method Comparisons -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Rollout Comparisons</h2>
+        <div class="content has-text-justified">
+          <p>
+            These are rollout comparisons between the <span class="dnerf">ROPA</span> (left) and ACT without data augmentation (right). In all rollouts, ACT without augmentation froze, whereas ROPA succeeded.
+          </p>
+        </div>
+        <div class="col">
+          <video autoplay muted loop style="border-radius: 10px">
+            <source src="./static/videos/comparison/real_CLB.mp4" type="video/mp4">
+          </video>
+          <h1 class="title is-5" style="text-align: center;">Lift Ball</h1>
+        </div>
+        <div class="section-div"></div>
+
+        <div class="col">
+          <video autoplay muted loop style="border-radius: 10px">
+            <source src=".\static\videos\comparison\real_CLD.mp4" type="video/mp4">
+          </video>
+          <h1 class="title is-5" style="text-align: center;">Lift Drawer</h1>
+        </div>
+        <div class="section-div"></div>
+
+        <div class="col">
+          <video autoplay muted loop style="border-radius: 10px">
+            <source src=".\static\videos\comparison\real_CPB.mp4" type="video/mp4">
+          </video>
+          <h1 class="title is-5" style="text-align: center;">Push Block</h1>
+        </div>
+        <div class="section-div"></div>
+      </div>
+    </div>
+    <!-- Method Comparisons -->
+
+    <!-- Baseline Comparisons -->
+    <div class="columns is-centered  has-text-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" style="text-align:start;">Baseline Comparisons</h2>
+        <div class="content has-text-justified">
+          <p>
+            Compare results between <span class="dnerf">ROPA</span>, ACT with no augmentation, ACT with more data, and Fine-Tuned VISTA across various tasks.
+          </p>
+        </div>
+        
+        <div class="box mt-0 mb-0">
+          <div class="columns is-centered">
+            <div class="column is-narrow">
+              <div class="field">
+                <label class="label">Choose a task to view baseline comparisons:</label>
+                <div class="control">
+                  <div class="select">
+                    <select id="baseline-selector">
+                      <option value="lift_ball">(Simulation) Coordinated Lift Ball</option>
+                      <option value="lift_tray">(Simulation) Coordinated Lift Tray</option>
+                      <option value="push_box">(Simulation) Coordinated Push Box</option>
+                      <option value="push_buttons">(Simulation) Coordinated Put Item In Drawer</option>
+                      <option value="straighten_rope">(Simulation) Bimanual Straighten Rope</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="columns is-centered mt-4">
+            <div class="column">
+              <div id="baseline-container" class="has-text-centered">
+                <!-- Lift Ball -->
+                <div id="lift_ball" class="baseline-comparison">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <h5 class="title is-5"><span class="dnerf">ROPA</span></h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLB/ROPA_CLB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT without augmentation</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLB/NoAugmentation_CLB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                  <div class="columns mt-4">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT with more data</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLB/MoreData_CLB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">Fine-Tuned VISTA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLB/FinetunedVISTA_CLB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Lift Tray -->
+                <div id="lift_tray" class="baseline-comparison" style="display: none;">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ROPA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLT/ROPA_CLT.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT without augmentation</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLT/NoAugmentation_CLT.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                  <div class="columns mt-4">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT with more data</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLT/MoreData_CLT.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">Fine-Tuned VISTA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CLT/FinetunedVISTA_CLT.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Push Box -->
+                <div id="push_box" class="baseline-comparison" style="display: none;">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ROPA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPB/ROPA_CPB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT without augmentation</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPB/NoAugmentation_CPB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                  <div class="columns mt-4">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT with more data</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPB/MoreData_CPB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">Fine-Tuned VISTA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPB/FinetunedVISTA_CPB.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Coordinated Put Item In Drawer -->
+                <div id="push_buttons" class="baseline-comparison" style="display: none;">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ROPA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPID/ROPA_CPID.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT without augmentation</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPID/NoAugmentation_CPID.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                  <div class="columns mt-4">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT with more data</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPID/MoreData_CPID.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">Fine-Tuned VISTA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/CPID/FinetunedVISTA_CPID.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Straighten Rope -->
+                <div id="straighten_rope" class="baseline-comparison" style="display: none;">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ROPA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/BSR/ROPA_BSR.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT without augmentation</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/BSR/NoAugmentation_BSR.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                  <div class="columns mt-4">
+                    <div class="column is-6">
+                      <h5 class="title is-5">ACT with more data</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/BSR/MoreData_BSR.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                    <div class="column is-6">
+                      <h5 class="title is-5">Fine-Tuned VISTA</h5>
+                      <video controls muted style="width: 90%; height: 85%; min-height: 218px;">
+                        <source src="./static/videos/baseline/BSR/FinetunedVISTA_BSR.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Baseline Comparisons -->
+
+    <!-- Variation Expirements -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Variation Expirements</h2>
+        <div class="content has-text-justified">
+          <p>
+            These are real-world expirements with different variations for each task using <span class="dnerf">ROPA</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-6">
+        <div class="has-text-centered">
+          <h5 class="title is-5">Lift Ball w/ Distractors</h5>
+          <p class="subtitle is-6">Added various different fruits as distractors</p>
+          <div class="content-div"></div>
+          <video autoplay muted loop style="width: 100%; border-radius: 10px;">
+            <source src=".\static\videos\variations\CLB_Variation1.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      
+      <div class="column is-6">
+        <div class="has-text-centered">
+          <h5 class="title is-5">Push Box w/ Distractors</h5>
+          <p class="subtitle is-6">Added various different fruits as distractors</p>
+          <div class="content-div"></div>
+          <video autoplay muted loop style="width: 100%; border-radius: 10px;">
+            <source src=".\static\videos\variations\CPB_Variation1.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-6">
+        <div class="has-text-centered">
+          <h5 class="title is-5">Lift Drawer w/ Distractors</h5>
+          <p class="subtitle is-6">Added various different fruits as distractors</p>
+          <div class="content-div"></div>
+          <video autoplay muted loop style="width: 100%; border-radius: 10px;">
+            <source src=".\static\videos\variations\CLD_Variation1.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      
+      <div class="column is-6">
+        <div class="has-text-centered">
+          <h5 class="title is-5">Push Block w/ 2 Blocks</h5>
+          <p class="subtitle is-6">Added one block on top of the original block</p>
+          <div class="content-div"></div>
+          <video autoplay muted loop style="width: 100%; border-radius: 10px;">
+            <source src=".\static\videos\variations\CPB_Variation2.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+    <!-- Variations Expirements -->
 </section>
 
 
